@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import net.pms.Messages;
@@ -455,7 +455,7 @@ public class MediaTableFiles extends MediaTable {
 				MediaDatabase.dropTable(connection, TABLE_NAME);
 				createTable(connection);
 				MediaTableTablesVersions.setTableVersion(connection, TABLE_NAME, TABLE_VERSION);
-				//put back constaints
+				//put back constraints
 				executeUpdate(connection, ALTER_TABLE + IF_EXISTS + MediaTableAudiotracks.TABLE_NAME + ADD + CONSTRAINT + IF_NOT_EXISTS + MediaTableAudiotracks.TABLE_NAME + CONSTRAINT_SEPARATOR + MediaTableAudiotracks.COL_FILEID + FK_MARKER + FOREIGN_KEY + "(" + MediaTableAudiotracks.COL_FILEID + ")" + REFERENCES + TABLE_NAME + "(" + COL_ID + ")" + ON_DELETE_CASCADE);
 				executeUpdate(connection, ALTER_TABLE + IF_EXISTS + MediaTableSubtracks.TABLE_NAME + ADD + CONSTRAINT + IF_NOT_EXISTS + MediaTableSubtracks.TABLE_NAME + CONSTRAINT_SEPARATOR + MediaTableSubtracks.COL_FILEID + FK_MARKER + FOREIGN_KEY + "(" + MediaTableSubtracks.COL_FILEID + ")" + REFERENCES + TABLE_NAME + "(" + COL_ID + ")" + ON_DELETE_CASCADE);
 				executeUpdate(connection, ALTER_TABLE + IF_EXISTS + MediaTableChapters.TABLE_NAME + ADD + CONSTRAINT + IF_NOT_EXISTS + MediaTableChapters.TABLE_NAME + CONSTRAINT_SEPARATOR + MediaTableChapters.COL_FILEID + FK_MARKER + FOREIGN_KEY + "(" + MediaTableChapters.COL_FILEID + ")" + REFERENCES + TABLE_NAME + "(" + COL_ID + ")" + ON_DELETE_CASCADE);
@@ -907,7 +907,7 @@ public class MediaTableFiles extends MediaTable {
 
 	public static List<String> getStrings(final Connection connection, String sql) {
 		List<String> list = new ArrayList<>();
-		Set<String> set = new HashSet<>();
+		Set<String> set = new LinkedHashSet<>();
 		try {
 			try (
 				PreparedStatement ps = connection.prepareStatement((sql.toLowerCase().startsWith("select") || sql.toLowerCase().startsWith("with")) ? sql : ("SELECT FILENAME FROM " + TABLE_NAME + WHERE + sql));

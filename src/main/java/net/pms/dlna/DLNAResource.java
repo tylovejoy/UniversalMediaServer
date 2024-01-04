@@ -727,11 +727,11 @@ public abstract class DLNAResource extends HTTPResource implements Cloneable, Ru
 						}
 					}
 				}
-
 				if (isNew) {
 					addChildInternal(child, isAddGlobally);
+				} else {
+					LOGGER.trace("Details on media being imported :" + child);
 				}
-
 				if (resumeRes != null) {
 					resumeRes.setDefaultRenderer(child.getDefaultRenderer());
 					addChildInternal(resumeRes);
@@ -739,7 +739,6 @@ public abstract class DLNAResource extends HTTPResource implements Cloneable, Ru
 			}
 		} catch (Throwable t) {
 			LOGGER.debug("Error adding child {}: {}", child.getName(), t);
-
 			child.parent = null;
 			children.remove(child);
 		}
@@ -885,7 +884,7 @@ public abstract class DLNAResource extends HTTPResource implements Cloneable, Ru
 			/*
 			 * Transcode if: 1) transcoding is forced by configuration, or 2)
 			 * transcoding is not prevented by configuration and is needed due
-			 * to subtitles or some other renderer incompatbility
+			 * to subtitles or some other renderer incompatibility
 			 */
 			if (forceTranscode || (isIncompatible && !isSkipTranscode())) {
 				if (parserV2) {
@@ -2079,27 +2078,27 @@ public abstract class DLNAResource extends HTTPResource implements Cloneable, Ru
 						}
 
 						if (isOutputtingMPEGTS) {
-							dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsMpeg2OrgPN(localizationValue, media, renderer, false);
 							if (renderer.isTranscodeToH264() && !VideoLanVideoStreaming.ID.equals(engine.getEngineId())) {
 								dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsH264OrgPN(localizationValue, media, renderer, false);
+							} else if (renderer.isTranscodeToMPEG2()) {
+								dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsMpeg2OrgPN(localizationValue, media, renderer, false);
 							}
 						}
 					} else if (media != null) {
 						// In this block, we are streaming the file
 						if (media.isMpegTS()) {
-							if ((engine == null && media.isH264()) || (engine != null && renderer.isTranscodeToH264())) {
+							if (media.isH264()) {
 								dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsH264OrgPN(localizationValue, media, renderer, engine == null);
-							} else {
+							} else if (engine == null && media.isMpeg2()) {
 								dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsMpeg2OrgPN(localizationValue, media, renderer, engine == null);
 							}
 						}
 					}
 				} else if (media != null && mime.equals(MPEGTS_TYPEMIME)) {
-					// patters - on Sony BDP m2ts clips aren't listed without
-					// this
+					// patterns - on Sony BDP m2ts clips aren't listed without this
 					if ((engine == null && media.isH264()) || (engine != null && renderer.isTranscodeToH264())) {
 						dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsH264OrgPN(localizationValue, media, renderer, engine == null);
-					} else {
+					} else if ((engine == null && media.isMpeg2()) || (engine != null && renderer.isTranscodeToMPEG2())) {
 						dlnaOrgPnFlags = "DLNA.ORG_PN=" + getMpegTsMpeg2OrgPN(localizationValue, media, renderer, engine == null);
 					}
 				} else if (media != null && mime.equals(MP4_TYPEMIME)) {
@@ -4530,7 +4529,7 @@ public abstract class DLNAResource extends HTTPResource implements Cloneable, Ru
 	/**
 	 * Set to true if transcoding should be skipped for this resource.
 	 *
-	 * @param skipTranscode Set to true if trancoding should be skipped, false
+	 * @param skipTranscode Set to true if transcoding should be skipped, false
 	 *            otherwise.
 	 * @since 1.50
 	 */

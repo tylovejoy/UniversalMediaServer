@@ -582,8 +582,8 @@ public class PlayerApiServlet extends GuiHttpServlet {
 		List<DLNAResource> libraryVideos = renderer.getRootFolder().getDLNAResources(librayFolder.getId(), true, 0, 6, renderer);
 
 		for (DLNAResource libraryVideo : libraryVideos) {
-			// Skip the #--TRANSCODE--# entry
-			if (libraryVideo.resumeName().equals(Messages.getString("Transcode_FolderName"))) {
+			// Skip the #--TRANSCODE--# and \#--LIVE SUBTITLES--\# entries - issue-fix-3669
+			if (libraryVideo.resumeName().equals(Messages.getString("Transcode_FolderName")) || libraryVideo.resumeName().equals(Messages.getString("LiveSubtitles_FolderName"))) {
 				continue;
 			}
 			jLibraryVideos.add(getMediaJsonObject(libraryVideo));
@@ -767,7 +767,7 @@ public class PlayerApiServlet extends GuiHttpServlet {
 			res = renderer.getRootFolder().getDLNAResources(id, false, 0, 0, renderer);
 			if (res.size() != 1) {
 				// another error
-				LOGGER.debug("media unkonwn");
+				LOGGER.debug("media unknown");
 				return false;
 			}
 			DLNAResource dlna = res.get(0);
@@ -821,7 +821,7 @@ public class PlayerApiServlet extends GuiHttpServlet {
 			res = renderer.getRootFolder().getDLNAResources(id, false, 0, 0, renderer);
 			if (res.size() != 1) {
 				// another error
-				LOGGER.debug("media unkonwn");
+				LOGGER.debug("media unknown");
 				return false;
 			}
 			DLNAResource dlna = res.get(0);
@@ -852,7 +852,7 @@ public class PlayerApiServlet extends GuiHttpServlet {
 			res = renderer.getRootFolder().getDLNAResources(id, false, 0, 0, renderer);
 			if (res.size() != 1) {
 				// another error
-				LOGGER.debug("media unkonwn");
+				LOGGER.debug("media unknown");
 				return false;
 			}
 			DLNAResource dlna = res.get(0);
@@ -936,7 +936,7 @@ public class PlayerApiServlet extends GuiHttpServlet {
 		DLNAResource resource = renderer.getRootFolder().getDLNAResource(resourceId, renderer);
 		if (resource == null) {
 			// another error
-			LOGGER.debug("media unkonwn");
+			LOGGER.debug("media unknown");
 			return false;
 		}
 		MediaSubtitle sid = null;
